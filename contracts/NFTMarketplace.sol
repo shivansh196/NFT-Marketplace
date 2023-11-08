@@ -11,6 +11,7 @@ import "hardhat/console.sol";
 contract nftMarketplace is ERC721URIStorage{
     using Counters for Counters.Counter;
 
+
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
 
@@ -59,17 +60,20 @@ contract nftMarketplace is ERC721URIStorage{
         return listingPrice;
     }
 
-    // Let create "CREATE NFT TOKEN FUNCTION"
+    //  Creating "CREATE NFT TOKEN FUNCTION"
+    //The very first time the token is created, it i lisred here
 
     function createToken(string memory tokenURL, uint256 price) 
         public 
         payable 
         returns (uint256) 
     {
+        //This keeps track of the number of minted NFT's
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
 
         _mint(msg.sender, newTokenId);
+        //Mapping hte tokenID to tokenURI
         _setTokenURI(newTokenId, tokenURL);
 
         createMarketItem(newTokenId, price);
@@ -81,11 +85,9 @@ contract nftMarketplace is ERC721URIStorage{
 
     function createMarketItem(uint256 tokenId, uint256 price) private {
         require(price > 0, "Price must be at least 1");
-        require(
-            msg.value == listingPrice, 
-            "Price must be equal to listing price"
-        );
-
+        //To check if the sender has sent enough ETH to pay for listing
+        require(msg.value == listingPrice, "Price must be equal to listing price");
+        //Update the mapping of tokenId's to Token details, useful for retrieval functions
         idMarketItem[tokenId] = MarketItem(
             tokenId,
             payable(msg.sender),
